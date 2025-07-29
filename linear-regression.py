@@ -104,8 +104,31 @@ for epoch in range(epochs):
         print(f"Epoch: {epoch}, Loss: {loss}, Test Loss: {test_loss}")
         print(model_0.state_dict())
 
+# Save the trained model
+model_save_path = "linear_regression_model.pth"
+torch.save(model_0.state_dict(), model_save_path)
+print(f"Model saved to {model_save_path}")
+
+# Load the model (demonstration)
+def load_model(model_path):
+    """Load a saved model state dict"""
+    loaded_model = LinearRegressionModel()
+    loaded_model.load_state_dict(torch.load(model_path))
+    loaded_model.eval()  # Set to evaluation mode
+    return loaded_model
+
+# Example of loading the model
+loaded_model = load_model(model_save_path)
+print(f"Model loaded from {model_save_path}")
+print(f"Loaded model state: {loaded_model.state_dict()}")
+
+# Make predictions with both original and loaded model to verify they're the same
 with torch.inference_mode():
     y_pred_new = model_0(X_test)
+    y_pred_loaded = loaded_model(X_test)
+    
+    # Verify models produce identical results
+    print(f"Models produce identical results: {torch.allclose(y_pred_new, y_pred_loaded)}")
 
 # Plot initial predictions (before training) - create a fresh untrained model
 torch.manual_seed(42)
