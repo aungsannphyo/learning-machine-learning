@@ -64,7 +64,14 @@ with torch.inference_mode():
 loss_fn = nn.L1Loss()
 optimizer = torch.optim.SGD(params=model_0.parameters(), lr=0.01)
 
-epochs = 1000
+epochs = 200
+
+# Track different values
+epoch_count = []
+loss_values = []
+test_loss_values = []
+
+
 # Training loop
 for epoch in range(epochs):
     # set the model to training mode
@@ -89,9 +96,13 @@ for epoch in range(epochs):
     with torch.inference_mode():
         test_pred = model_0(X_test)
         test_loss = loss_fn(test_pred, y_test)
-        if epoch % 10 == 0:
-            print(f"Epoch: {epoch}, Loss: {loss}, Test Loss: {test_loss}")
-            print(model_0.state_dict())
+
+    if epoch % 10 == 0:
+        epoch_count.append(epoch)
+        loss_values.append(loss.detach().numpy())
+        test_loss_values.append(test_loss.detach().numpy())
+        print(f"Epoch: {epoch}, Loss: {loss}, Test Loss: {test_loss}")
+        print(model_0.state_dict())
 
 with torch.inference_mode():
     y_pred_new = model_0(X_test)
@@ -105,3 +116,12 @@ plot_predictions(predictions=initial_pred)
 
 # Plot final predictions (after training)
 plot_predictions(predictions=y_pred_new)
+
+# Plot the loss curves
+plt.plot(epoch_count, loss_values, label='Train loss')
+plt.plot(epoch_count, test_loss_values, label='Test loss')
+plt.title('Training and test loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
